@@ -303,8 +303,8 @@ async function createBook(){
    setStatus('<span class="spinner"></span>Сюжет готов. Создаём иллюстрации — это может занять несколько минут.');
    for(let i=0;i<currentBook.pages.length;i++){
     try{
-     const characterGuide=(currentBook.characters||[]).map(c=>c.name+": "+c.visualDescription).join("\\n");
-     const artPrompt=`Иллюстрация для детской книги, композиция 4:3. Художественный стиль: качественная книжная живопись акварелью и гуашью, тонкая фактура бумаги и мазков кисти, мягкий естественный свет, выразительные эмоции, цельная композиция, гармоничная палитра. ПАСПОРТ ПОСТОЯННЫХ ПЕРСОНАЖЕЙ — строго соблюдай внешний вид, виды животных, цвета, лицо, пропорции, одежду и отличительные детали: ${characterGuide||"Следуй подробному описанию героев в сцене"}. Не добавляй новых главных героев и не меняй дизайн между страницами. Без текста, букв, подписей, рамок и коллажей. Сцена: ${currentBook.pages[i].imagePrompt||currentBook.pages[i].text}`;
+     const characterGuide=(currentBook.characters||[]).map(c=>c.name+": "+c.visualDescription).join("\n");
+     const artPrompt=`Иллюстрация для детской книги, вертикальная композиция 3:4. Художественный стиль: качественная книжная живопись акварелью и гуашью, тонкая фактура бумаги и мазков кисти, мягкий естественный свет, выразительные эмоции, цельная композиция, гармоничная палитра. ПАСПОРТ ПОСТОЯННЫХ ПЕРСОНАЖЕЙ — строго соблюдай внешний вид, виды животных, цвета, лицо, пропорции, одежду и отличительные детали: ${characterGuide||"Следуй подробному описанию героев в сцене"}. Не добавляй новых главных героев и не меняй дизайн между страницами. Без текста, букв, подписей, рамок и коллажей. Сцена: ${currentBook.pages[i].imagePrompt||currentBook.pages[i].text}`;
      const referenceImage=i>0&&currentBook.pages[0]?.image?await makeCharacterReference(currentBook.pages[0].image):"";
      const r=await fetch("/api/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:artPrompt,referenceImage})});
      if(r.ok){const data=await r.json();currentBook.pages[i].image=data.image;saveCurrentBook()}
