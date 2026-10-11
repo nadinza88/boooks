@@ -4,7 +4,7 @@
  * AI binding name: AI (Cloudflare Workers AI). Secrets are never exposed to the browser.
  */
 const MODEL_TEXT = "@cf/qwen/qwen3-30b-a3b-fp8";
-const MODEL_IMAGE = "@cf/black-forest-labs/flux-1-schnell";
+const MODEL_IMAGE = "@cf/black-forest-labs/flux-2-klein-9b";
 const JSON_HEADERS = {
   "Content-Type": "application/json; charset=utf-8",
   "Cache-Control": "no-store",
@@ -36,7 +36,7 @@ export default {
         const genre = allowedGenres.has(body.genre) ? body.genre : "Приключение";
         const heroName = clip(body.name, 50);
         const extra = clip(body.moral, 180);
-        const system = `Ты — автор детских иллюстрированных книг на русском языке для детей ${age} лет. Жанр: ${genre}. Напиши оригинальную, логичную историю с началом, развитием и завершением. Без жестокости, сексуального контента, опасных инструкций, унижений и персональных данных. Не добавляй нравоучительные шаблоны. Верни только JSON без Markdown: {"title":"название","coverEmoji":"emoji","subtitle":"описание","pages":[{"heading":"заголовок","text":"литературный текст","imagePrompt":"подробная сцена для акварельной иллюстрации"}]}. Ровно ${count} страниц. Каждый эпизод двигает сюжет. Сохраняй имена, внешность и характеры героев во всех промптах. Промпты без букв, текста и водяных знаков.`;
+        const system = `Ты — автор детских иллюстрированных книг на русском языке для детей ${age} лет. Жанр: ${genre}. Напиши оригинальную, логичную историю с началом, развитием и завершением. Без жестокости, сексуального контента, опасных инструкций, унижений и персональных данных. Не добавляй нравоучительные шаблоны. Верни только JSON без Markdown: {"title":"название","coverEmoji":"emoji","subtitle":"описание","pages":[{"heading":"заголовок","text":"литературный текст","imagePrompt":"подробная сцена для акварельной иллюстрации"}]}. Ровно ${count} страниц. Каждый эпизод двигает сюжет. Сначала создай characters — паспорт всех повторяющихся персонажей: точный вид, вид животного/человека, возраст, цвет и форма глаз, шерсти/волос, одежда, аксессуары и отличительные черты. В imagePrompt каждой страницы подробно указывай, какие именно персонажи из паспорта присутствуют и что они делают; не меняй их внешность и одежду между сценами. Верни JSON с полями title, coverEmoji, subtitle, characters: [{name, visualDescription}], pages: [{heading, text, imagePrompt}]. Промпты без букв, текста и водяных знаков.`;
         const user = `Идея ребёнка: ${idea}
 Имя героя: ${heroName || "придумай подходящее"}
 Пожелания: ${extra || "нет"}`;
@@ -47,19 +47,29 @@ export default {
           let book;
           try { book = JSON.parse(raw); } catch { throw new Error("Модель вернула некорректный JSON. Попробуй ещё раз."); }
           if (!book || !Array.isArray(book.pages) || book.pages.length < 1) throw new Error("В ответе модели нет страниц.");
-          book.pages = book.pages.slice(0, count).map((p, i) => ({ heading: clip(p?.heading || `Страница ${i+1}`, 120), text: clip(p?.text, 1400), imagePrompt: clip(p?.imagePrompt || p?.text, 1800) }));
+          book.characters = Array.isArray(book.characters) ? book.characters.slice(0, 8).map(c => ({ name: clip(c?.name, 80), visualDescription: clip(c?.visualDescription, 500) })).filter(c => c.name && c.visualDescription) : [];\n          book.pages = book.pages.slice(0, count).map((p, i) => ({ heading: clip(p?.heading || `Страница ${i+1}`, 120), text: clip(p?.text, 1400), imagePrompt: clip(p?.imagePrompt || p?.text, 1800) }));
           if (book.pages.length !== count) throw new Error("Модель создала не все страницы. Попробуй ещё раз.");
-          return json({ title: clip(book.title || "Моя первая книга", 120), coverEmoji: clip(book.coverEmoji || "📚", 8), subtitle: clip(book.subtitle || "История по твоей идее", 180), pages: book.pages });
+          return json({ title: clip(book.title || "Моя первая книга", 120), coverEmoji: clip(book.coverEmoji || "📚", 8), subtitle: clip(book.subtitle || "История по твоей идее", 180), characters: book.characters, pages: book.pages });
         } catch (e) { return json({ error: `Не удалось создать историю: ${clip(e?.message || e, 250)}` }, 502); }
       }
       const prompt = clip(body.prompt, 1800);
       if (!prompt) return json({ error: "Не задано описание иллюстрации." }, 400);
       try {
-        // FLUX.1 schnell on Workers AI does not accept `seed` in this input schema.
-        // Keep only supported parameters to avoid error 5006 from the model validator.
+        const fullPrompt = `${prompt}. Детская книжная иллюстрация в стиле акварели и гуаши, фактура бумаги и мазков кисти, цельная композиция, мягкий естественный свет, выразительные эмоции, гармоничная палитра. Точно соблюдай описание персонажей и сцену. Без текста, букв, логотипов и водяных знаков.`;
+        const reference = typeof body.referenceImage === "string" ? body.referenceImage.replace(/^data:image\\/[^;]+;base64,/, "") : "";
+        const form = new FormData();
+        form.append("prompt", reference
+          ? `Используй изображение 1 как визуальный референс для сохранения идентичности персонажей и художественного стиля. Сохрани вид животного/человека, пропорции, цвета, лицо, шерсть/волосы и одежду. Измени позу, действие и фон согласно новой сцене: ${fullPrompt}`
+          : fullPrompt);
+        form.append("width", "1024");
+        form.append("height", "768");
+        if (reference) {
+          const binary = Uint8Array.from(atob(reference), c => c.charCodeAt(0));
+          form.append("input_image_0", new Blob([binary], { type: "image/jpeg" }), "character-reference.jpg");
+        }
+        const serialized = new Response(form);
         const result = await env.AI.run(MODEL_IMAGE, {
-          prompt: `${prompt}. Детская книжная иллюстрация в стиле акварели и гуаши, фактура настоящей бумаги, выразительные персонажи с постоянной внешностью, цельная композиция, мягкий естественный свет, гармоничные голубые, синие, сиреневые и тёплые кремовые оттенки. Без текста, букв, логотипов и водяных знаков.`,
-          steps: 4
+          multipart: { body: serialized.body, contentType: serialized.headers.get("content-type") }
         });
         if (!result?.image) throw new Error("Модель не вернула изображение.");
         return json({ image: result.image });
