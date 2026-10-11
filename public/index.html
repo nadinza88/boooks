@@ -340,3 +340,30 @@ $("createBtn").onclick=createBook;
 })();
 </script>
 </body></html>
+
+
+<style>
+/* TEST BUILD MARKER — visual deployment check */
+body {
+  background:
+    radial-gradient(ellipse at 8% 5%, #ffb3d9 0, transparent 30%),
+    radial-gradient(ellipse at 92% 12%, #b8a5ff 0, transparent 34%),
+    linear-gradient(145deg, #f8d9ff 0%, #d7e5ff 48%, #ffd9bd 100%) !important;
+}
+.topbar::after {
+  content: "ТЕСТОВАЯ ВЕРСИЯ · ОБНОВЛЕНИЕ";
+  display: inline-block;
+  padding: 9px 13px;
+  border-radius: 999px;
+  background: #6c35c8;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .6px;
+  box-shadow: 0 4px 0 #48218e;
+}
+@media (max-width: 700px) {
+  .topbar { flex-wrap: wrap; }
+  .topbar::after { margin-left: 2px; }
+}
+</style>
