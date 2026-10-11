@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Книжная мастерская NeuroGym</title>
+<style>
+:root{color-scheme:light;--ink:#21334c;--muted:#6c7b8e;--blue:#17618f;--blue2:#2786b8;--sky:#eaf6fb;--cream:#fffaf0;--paper:#fffdf8;--line:#dce8ee;--coral:#ffb18c;--yellow:#ffd66b;--green:#4f9b82}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(140deg,#eef8fb,#fff8ee 55%,#f4f0ff);font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;color:var(--ink)}
+button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;border-radius:14px;padding:12px 17px;font-weight:750;transition:.18s transform,.18s opacity}button:hover{transform:translateY(-1px)}button:disabled{opacity:.55;cursor:wait;transform:none}
+#app{min-height:100vh;padding:24px;max-width:1200px;margin:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 auto 22px;max-width:1050px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:16px;background:var(--blue);color:white;display:grid;place-items:center;font-size:25px;box-shadow:0 7px 18px #17618f33}
+.brand h1{font-size:19px;margin:0;letter-spacing:-.4px}.brand p{font-size:12px;color:var(--muted);margin:3px 0 0}.pill{background:#fff;border:1px solid var(--line);padding:8px 12px;border-radius:99px;font-size:12px;color:var(--muted)}
+.hero{max-width:1050px;margin:auto auto 24px;display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center}
+.hero-copy{padding:24px 4px}.eyebrow{color:var(--blue);font-size:12px;text-transform:uppercase;letter-spacing:1.6px;font-weight:900}.hero h2{font-size:clamp(32px,5vw,54px);line-height:1.04;letter-spacing:-1.8px;margin:14px 0}.hero p{font-size:16px;line-height:1.65;color:#617184;max-width:500px}.hero-art{min-height:275px;border-radius:30px;background:linear-gradient(145deg,#cdebf6,#e5e2ff 60%,#ffdec9);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;box-shadow:0 18px 50px #355b7220}
+.book-stack{position:relative;width:220px;height:190px;transform:rotate(-6deg)}.book{position:absolute;width:155px;height:190px;border:5px solid #fff;border-radius:9px 17px 17px 9px;box-shadow:0 14px 24px #1d456633;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;font-size:21px;font-weight:900;line-height:1.1}.book.one{background:#ffce8d;left:0;top:5px;transform:rotate(-11deg)}.book.two{background:#8dc9d7;left:63px;top:0;transform:rotate(9deg);color:#123d57}.book.three{background:#a7a0e9;left:35px;top:10px;transform:rotate(-1deg);color:#fff}.spark{position:absolute;font-size:32px}.spark.a{top:28px;right:35px}.spark.b{bottom:27px;left:35px}.spark.c{bottom:38px;right:40px;font-size:23px}
+.panel{max-width:1050px;margin:0 auto 30px;background:#ffffffdc;border:1px solid #fff;border-radius:26px;padding:clamp(18px,3vw,30px);box-shadow:0 14px 45px #355b7210}
+.panel h3{margin:0 0 8px;font-size:23px;letter-spacing:-.5px}.sub{margin:0 0 22px;color:var(--muted);line-height:1.5;font-size:14px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.field{display:flex;flex-direction:column;gap:8px}.field.full{grid-column:1/-1}.field label{font-size:13px;font-weight:800}.field textarea,.field input,.field select{border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 14px;color:var(--ink);outline:none;width:100%}.field textarea{min-height:105px;resize:vertical;line-height:1.5}.field textarea:focus,.field input:focus,.field select:focus{border-color:#69b5d5;box-shadow:0 0 0 3px #dff3fb}
+.options{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.option{border:1px solid var(--line);border-radius:15px;padding:13px;background:#fff}.option label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}.option select{width:100%;border:0;background:transparent;color:var(--ink);font-weight:750;outline:none}
+.primary{background:var(--blue);color:#fff;padding:15px 22px;font-size:15px;box-shadow:0 8px 18px #17618f25}.secondary{background:#e8f4f8;color:var(--blue)}.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}.actionrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px}.smallnote{font-size:12px;color:var(--muted);line-height:1.5}
+.status{display:none;margin-top:18px;background:#edf7fb;border-radius:14px;padding:14px 16px;color:#245775;font-size:13px;line-height:1.5}.status.show{display:block}.status.error{background:#fff0eb;color:#8a3d2d}
+.bookroom{display:none;max-width:1050px;margin:0 auto 32px}.bookroom.show{display:block}.booktoolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.booktoolbar h3{margin:0;font-size:23px}.bookstage{background:linear-gradient(135deg,#d7eef6,#f3edff);border-radius:26px;padding:clamp(14px,3vw,30px);min-height:430px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.openbook{width:min(780px,100%);display:grid;grid-template-columns:1fr 1fr;filter:drop-shadow(0 14px 18px #263c4a20);perspective:1200px}.page{background:var(--paper);min-height:360px;padding:26px 25px 22px;position:relative;overflow:hidden;border:1px solid #e8dfd0}.page.left{border-radius:13px 0 0 13px;border-right:1px solid #e3d9c8}.page.right{border-radius:0 13px 13px 0}.page.cover{grid-column:1/-1;min-height:430px;border-radius:14px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#fff5d8,#f4eaff);padding:30px}.page.cover h2{font-size:clamp(30px,5vw,48px);line-height:1.05;margin:15px 0}.page.cover p{max-width:420px;color:#6c6c83;line-height:1.6}.cover-icon{font-size:64px}.page-number{position:absolute;bottom:12px;color:#a3a09a;font-size:11px}.left .page-number{left:22px}.right .page-number{right:22px}.page h4{font-size:20px;line-height:1.2;margin:0 0 13px}.page p{font-family:Georgia,serif;font-size:15px;line-height:1.72;margin:0;white-space:pre-wrap}.illustration{width:100%;height:185px;object-fit:cover;border-radius:12px;background:#edf3f5;margin:0 0 14px;display:block}.image-placeholder{height:185px;border-radius:12px;background:linear-gradient(135deg,#e1f2f8,#f4e7ff);display:grid;place-items:center;font-size:42px;margin-bottom:14px}.page-controls{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:16px}.page-count{font-size:13px;color:var(--muted);min-width:110px;text-align:center}.spinner{display:inline-block;width:14px;height:14px;border:2px solid #b8dce9;border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}@keyframes spin{to{transform:rotate(360deg)}}
+.footer{text-align:center;color:#8592a1;font-size:12px;padding:4px 10px 20px}
+#printBook{display:none}
+.print-page{page-break-after:always;break-after:page;background:var(--paper);padding:2cm;min-height:95vh;color:var(--ink)}.print-page h2{font-size:30pt}.print-page h3{font-size:20pt}.print-page p{font-family:Georgia,serif;font-size:14pt;line-height:1.65;white-space:pre-wrap}.print-page img{display:block;width:100%;height:42vh;object-fit:contain;margin:16px 0;border-radius:10px}
+@media(max-width:700px){#app{padding:15px}.topbar{align-items:flex-start}.hero{grid-template-columns:1fr;gap:0}.hero-copy{padding:14px 2px}.hero-art{min-height:220px}.book-stack{transform:scale(.82) rotate(-6deg)}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.options{grid-template-columns:1fr}.openbook{grid-template-columns:1fr}.page.left{border-radius:12px 12px 0 0;border-right:1px solid #e3d9c8;border-bottom:0}.page.right{border-radius:0 0 12px 12px}.page{min-height:310px}.bookstage{padding:12px}.page.cover{min-height:380px}.pill{display:none}}
+@media print{body{background:white}#app>.topbar,#app>.hero,#app>.panel,.booktoolbar,.page-controls,.footer,.bookstage{display:none!important}#printBook{display:block!important}.print-page{display:block;page-break-after:always;break-after:page;border:0;border-radius:0;min-height:95vh;padding:2cm}.print-page.cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.print-page.cover h2{font-size:38pt}.print-page img{height:42vh;object-fit:contain}}
+</style>
+<style>
+/* Разворот детской книги: иллюстрация слева, текст справа */
+.bookstage{background:linear-gradient(135deg,#dceff7,#f1eaff);padding:clamp(12px,3vw,28px)}
+.openbook{width:min(1040px,100%);grid-template-columns:1fr 1fr;filter:drop-shadow(0 10px 18px #263c4a22)}
+.page{min-height:560px;padding:clamp(22px,4vw,44px);background:#fffdf8;border-color:#e9e2d8}
+.page.left{border-radius:14px 0 0 14px;border-right:1px solid #ded5c8}
+.page.right{border-radius:0 14px 14px 0;display:flex;flex-direction:column;justify-content:center;padding:clamp(28px,5vw,64px)}
+.page h4{font-size:clamp(19px,2vw,25px);margin-bottom:22px}
+.page p{font-family:Georgia,'Times New Roman',serif;font-size:clamp(16px,1.5vw,21px);line-height:1.7}
+.illustration{height:100%;min-height:490px;max-height:680px;object-fit:cover;border-radius:4px;margin:0;background:#e7e4d9}
+.image-placeholder{height:100%;min-height:490px;margin:0;border-radius:4px;background:linear-gradient(145deg,#dcecf3,#e8e0f5);font-size:64px}
+.page-number{bottom:18px;font-family:Georgia,serif;font-size:12px}
+@media(max-width:700px){.openbook{grid-template-columns:1fr}.page.left{border-radius:12px 12px 0 0;border-right:1px solid #e3d9c8;border-bottom:0}.page.right{border-radius:0 0 12px 12px;min-height:360px;padding:28px}.illustration,.image-placeholder{min-height:320px;height:320px}.page{min-height:360px}.page p{font-size:17px}}
+</style>
+<style>
+/* Кинематографичная сказочная мастерская */
+:root{--ink:#202943;--muted:#66728b;--blue:#2368b2;--blue2:#5db6d9;--paper:#fffdf7;--line:#dce4f1}
+body{background:radial-gradient(ellipse at 12% 4%,#fff0d8 0,transparent 31%),radial-gradient(ellipse at 90% 18%,#d9e9ff 0,transparent 34%),linear-gradient(150deg,#f5f4ff,#eaf7ff 48%,#fff2e5);background-attachment:fixed}
+#app{max-width:1320px;padding:clamp(16px,3vw,36px)}.topbar,.hero,.panel,.bookroom{max-width:1160px}
+.brand h1{font-size:21px;font-weight:900}.logo{border-radius:18px;background:linear-gradient(145deg,#397bd2,#754ed1);box-shadow:0 8px 0 #243f7b,0 15px 30px #4568b94a}
+.hero{grid-template-columns:1.05fr .95fr;gap:clamp(20px,4vw,56px);margin-bottom:34px}.hero-copy{padding:32px 4px}.eyebrow{display:inline-flex;background:#ffffffb8;border:1px solid #fff;padding:9px 13px;border-radius:999px;letter-spacing:1.2px;box-shadow:0 5px 18px #425e8710}
+.hero h2{font-size:clamp(38px,5.6vw,68px);line-height:.99;letter-spacing:-2.7px;color:#243459;text-shadow:0 2px 0 #fff}.hero p{font-size:17px;line-height:1.75;color:#596783}
+.hero-art{min-height:360px;border:1px solid #ffffffc9;border-radius:38px;background:radial-gradient(circle at 22% 18%,#fff7cf 0 4%,transparent 5%),radial-gradient(circle at 78% 80%,#ffcba8 0 5%,transparent 6%),linear-gradient(145deg,#8fd5f2,#b9b8fa 56%,#ffd4bd);box-shadow:inset 0 2px 0 #fff,0 24px 55px #5368a52b}.hero-art:before{content:"";position:absolute;width:280px;height:280px;border-radius:50%;background:#fff6d0;opacity:.45;filter:blur(2px);left:calc(50% - 140px);top:42px}
+.book-stack{z-index:1;transform:rotate(-5deg) scale(1.08);filter:drop-shadow(0 16px 12px #263b6533)}.book{border:5px solid #fff9ed;border-radius:13px 20px 20px 13px;font-size:22px;box-shadow:inset 7px 0 0 #ffffff55,0 17px 30px #1d456644}.book.one{background:linear-gradient(145deg,#ffd37d,#f59a82)}.book.two{background:linear-gradient(145deg,#79d8db,#528bd4)}.book.three{background:linear-gradient(145deg,#a9a1fa,#8069d4)}
+.spark{z-index:2;text-shadow:0 3px 0 #ffffff80;animation:floatSpark 3.5s ease-in-out infinite}.spark.b{animation-delay:-1.3s}.spark.c{animation-delay:-2s}@keyframes floatSpark{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-9px) rotate(9deg)}}
+.panel{border:1px solid #ffffffd9;border-radius:30px;background:#ffffffd9;backdrop-filter:blur(16px);box-shadow:0 20px 60px #394e7512;padding:clamp(22px,4vw,42px)}.panel h3{font-size:clamp(23px,3vw,30px);color:#243459}.sub{font-size:15px}.field label{font-size:14px;color:#394966}.field textarea,.field input,.field select{border:1px solid #dbe4f1;border-radius:17px;padding:15px 16px;background:#fff;box-shadow:inset 0 2px 3px #263d5a08;transition:border-color .2s,box-shadow .2s}.field textarea:focus,.field input:focus,.field select:focus{border-color:#7d9ef3;box-shadow:0 0 0 4px #dfe8ff}
+.option{border:1px solid #e0e6f3;border-radius:18px;background:linear-gradient(150deg,#fff,#f8faff);padding:15px}.option select{font-size:14px}.primary{background:linear-gradient(135deg,#347bd1,#6358ce);border-radius:16px;box-shadow:0 5px 0 #304d9b,0 12px 22px #4967bc30;padding:15px 22px}.primary:hover{filter:brightness(1.06);transform:translateY(-2px)}.secondary{background:#e7f5ff;color:#235c9e;border:1px solid #d1eaff}.ghost{border:1px solid #dce4f0;background:#fff;border-radius:15px}
+.booktoolbar h3{font-size:clamp(23px,3vw,31px);letter-spacing:-.8px}.bookstage{min-height:620px;padding:clamp(18px,4vw,54px);border:1px solid #ffffffd9;border-radius:34px;background:radial-gradient(ellipse at 50% 0%,#fff6d9 0,transparent 48%),linear-gradient(145deg,#c9e7f8,#d7d6ff 58%,#f8d9d0);box-shadow:inset 0 2px 0 #fff,0 24px 55px #3d548c1c;overflow:hidden}
+.openbook{width:min(1080px,100%);filter:drop-shadow(0 20px 20px #273a5633);transform-style:preserve-3d;perspective:1800px;position:relative}.page{background:linear-gradient(100deg,#fffdf8 0%,#fffdf8 92%,#f1e9db 100%);border-color:#e8dfd0;min-height:590px;padding:clamp(24px,4vw,48px);box-shadow:inset 0 0 22px #92754a08}.page.left{border-radius:16px 2px 2px 16px;border-right:1px solid #d7c9b4;box-shadow:inset -12px 0 18px #806a4c0a}.page.right{border-radius:2px 16px 16px 2px;background:linear-gradient(260deg,#fffdf8 0%,#fffdf8 91%,#eee4d5 100%);box-shadow:inset 12px 0 20px #806a4c0b}.page.right:before{content:"";position:absolute;left:0;top:0;bottom:0;width:16px;background:linear-gradient(90deg,#b8a58b12,transparent);pointer-events:none}
+.page h4{font-size:clamp(21px,2.2vw,29px);color:#293858;letter-spacing:-.5px;margin-bottom:24px}.page p{font-family:Georgia,'Times New Roman',serif;font-size:clamp(17px,1.5vw,21px);line-height:1.82;color:#292d3a}.illustration{min-height:520px;max-height:720px;height:100%;border-radius:5px;box-shadow:0 5px 18px #293f381c;object-fit:cover}.image-placeholder{min-height:520px;height:100%;border-radius:5px;background:radial-gradient(circle at 50% 40%,#fff9d7,#bce4f4 55%,#bdb8ef);font-size:78px}
+.page.cover{background:radial-gradient(circle at 50% 25%,#fff4ca,#e1e6ff 62%,#9fd4e9);border:8px solid #fff9ec;border-radius:18px;box-shadow:inset 9px 0 0 #ffffff85,0 14px 35px #354e8a30;min-height:590px;position:relative;overflow:hidden}.page.cover:before{content:"";position:absolute;inset:14px;border:1px solid #ffffffb0;border-radius:9px;pointer-events:none}.page.cover h2{font-size:clamp(36px,5vw,58px);color:#28365f;text-shadow:0 2px 0 #fff}.page.cover p{font-size:17px;color:#4e5d7c}.cover-icon{filter:drop-shadow(0 8px 8px #3e528633);font-size:76px}
+.page-turn-next{animation:pageFade .22s ease-out}.page-turn-prev{animation:pageFade .22s ease-out}@keyframes pageFade{from{opacity:.65}to{opacity:1}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+.page-controls{gap:18px;margin-top:22px}.page-controls button{min-width:120px}.page-count{font-weight:800;color:#4d5d7c}.smallnote{color:#71809a}.status{border:1px solid #dbeafa;background:#f2f8ff;border-radius:17px;padding:16px}
+@media(max-width:700px){.hero{grid-template-columns:1fr}.hero-art{min-height:270px}.hero-copy{padding:18px 2px}.hero h2{letter-spacing:-1.5px}.bookstage{min-height:0;padding:12px;border-radius:24px}.openbook{grid-template-columns:1fr}.page{min-height:360px;padding:24px}.page.left{border-radius:13px 13px 2px 2px;border-right:1px solid #e3d9c8;border-bottom:0}.page.right{border-radius:2px 2px 13px 13px;min-height:360px;padding:30px}.illustration,.image-placeholder{min-height:320px;height:320px}.page p{font-size:17px}.page.cover{min-height:440px}.page-controls{gap:8px}.page-controls button{min-width:0;padding:11px 13px}.booktoolbar{align-items:flex-start}.booktoolbar .actionrow{gap:8px!important}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+</style>
+<style>
+/* Читатель книги в стиле современной сказочной электронной книги */
+body{background:#f8f7f6;color:#252525;font-family:Arial,system-ui,sans-serif}
+#app{max-width:1500px;padding:18px clamp(12px,2vw,30px)}
+.topbar{max-width:1400px;margin-bottom:22px}
+.hero{max-width:1400px}
+.bookroom{max-width:1400px}
+.booktoolbar{background:#fff;border:1px solid #eee;border-radius:18px;padding:12px 18px;margin-bottom:12px;box-shadow:0 3px 14px #00000008}
+.booktoolbar h3{font-size:17px;font-weight:500;letter-spacing:0;color:#343434}
+.bookstage{min-height:0;padding:0;background:#fff;border:1px solid #e6e4e0;border-radius:26px;box-shadow:0 5px 24px #0000000a;overflow:hidden;justify-content:center}
+.openbook{width:100%;max-width:1280px;grid-template-columns:1fr 1fr;gap:0;filter:drop-shadow(0 2px 6px #00000012);perspective:2200px;align-self:stretch}
+.page{min-height:clamp(540px,65vw,735px);height:clamp(540px,65vw,735px);padding:0;background:#fffdf9;border-color:#e8e5de;box-shadow:none}
+.page.left{border-radius:14px 0 0 14px;border-right:0;overflow:hidden;padding:0;background:#e8e6dc}
+.page.right{position:relative;border-radius:0 14px 14px 0;display:flex;flex-direction:column;justify-content:center;padding:clamp(36px,6vw,84px) clamp(34px,6.2vw,92px);background:radial-gradient(ellipse at 50% 48%,#fff 0,#fff 65%,#f5f3ee 100%);box-shadow:inset 22px 0 28px -25px #55463270}
+.page.right:before{width:30px;background:linear-gradient(90deg,#b4afa51c,#ffffff00);box-shadow:2px 0 12px #00000005}
+.page h4{font-family:Georgia,'Times New Roman',serif;font-size:clamp(21px,2vw,27px);font-weight:400;line-height:1.4;color:#171717;margin-bottom:20px}
+.page p{font-family:Georgia,'Times New Roman',serif;font-size:clamp(18px,1.5vw,23px);line-height:1.48;color:#171717}
+.illustration,.image-placeholder{width:100%;height:100%;min-height:inherit;max-height:none;margin:0;border-radius:0;object-fit:cover;box-shadow:none}
+.image-placeholder{display:grid;place-items:center;background:linear-gradient(145deg,#e4eadf,#b7c9bb);font-size:80px}
+.page-number{bottom:22px;font-family:Georgia,serif;font-size:13px;color:#777}
+.page.left .page-number{left:24px;color:#fff;text-shadow:0 1px 4px #0008}
+.page.right .page-number{right:24px}
+.page-controls{margin:12px 0 24px;gap:18px}
+.page-controls button{min-width:105px;border-radius:999px}
+.page-count{color:#5d5d5d;font-weight:500}
+@media(max-width:700px){#app{padding:10px}.booktoolbar{padding:10px 12px}.bookstage{border-radius:14px}.openbook{grid-template-columns:1fr}.page{height:auto;min-height:0}.page.left{height:62vh;min-height:340px;border-radius:12px 12px 0 0}.page.right{height:auto;min-height:360px;padding:38px 32px 50px;border-radius:0 0 12px 12px}.illustration,.image-placeholder{height:100%;min-height:0}.page p{font-size:19px;line-height:1.55}.page-controls{margin-top:12px}}
+</style>
+
+<style>
+/* NeuroGym visual refinement v2: book fits the available viewport */
+:root{--paper:#fffdf8;--ink:#26334d;--muted:#6b7890}
+#app{max-width:1560px;padding:12px clamp(10px,2vw,26px)}
+.bookroom{max-width:1420px;margin-bottom:12px}
+.booktoolbar{margin-bottom:10px;padding:10px 16px;border-radius:16px}
+.bookstage{min-height:0;height:auto;padding:10px;background:linear-gradient(135deg,#f3eadc 0%,#e3eff4 48%,#ece7f7 100%);border:1px solid #e7e1d8;border-radius:22px;box-shadow:0 12px 34px #2b3b5010;overflow:hidden}
+.openbook{width:min(100%,1160px);max-width:1160px;align-self:center;grid-template-columns:minmax(0,1fr) minmax(0,1fr);filter:drop-shadow(0 12px 18px #26344820)}
+.page{height:clamp(390px,calc(100vh - 235px),680px);min-height:0;max-height:680px;overflow:hidden}
+.page.left{border-radius:12px 0 0 12px;background:#e9e9df}
+.page.right{padding:clamp(24px,4vw,58px);border-radius:0 12px 12px 0}
+.page h4{font-size:clamp(20px,1.8vw,27px);line-height:1.3;margin-bottom:clamp(12px,2vh,22px);color:#293b59}
+.page p{font-size:clamp(16px,1.35vw,21px);line-height:1.58;overflow-wrap:anywhere}
+.illustration,.image-placeholder{display:block;width:100%;height:100%;min-height:0;max-height:none;object-fit:cover;object-position:center;border-radius:0;margin:0}
+.image-placeholder{display:grid;place-items:center;background:radial-gradient(circle at 50% 32%,#fff8d9,#dcece7 55%,#b7d3d0);font-size:clamp(40px,6vw,76px)}
+.page.cover{height:clamp(390px,calc(100vh - 235px),680px);min-height:0;padding:clamp(28px,5vw,64px);border:8px solid #fffaf0;border-radius:16px;background:radial-gradient(ellipse at 50% 15%,#fff6cf 0,transparent 34%),linear-gradient(145deg,#d8e9e4 0%,#d8e2f7 52%,#f3dccc 100%);box-shadow:inset 0 0 0 1px #ffffffb5,0 12px 30px #293c5720}
+.page.cover h2{max-width:780px;font-size:clamp(30px,4.3vw,56px);line-height:1.08;margin:18px 0;color:#263d62;text-wrap:balance}
+.page.cover p{font-size:clamp(15px,1.5vw,18px);line-height:1.6}
+.cover-icon{font-size:clamp(48px,6vw,74px)}
+.page-number{bottom:16px}
+.page-controls{margin:10px 0 12px;gap:12px}
+.page-controls button{min-width:100px;padding:10px 16px}
+.page-turn-next,.page-turn-prev{animation:pageFade .18s ease-out}
+@media(max-height:760px) and (min-width:701px){.page,.page.cover{height:calc(100vh - 205px);max-height:590px}.page.right{padding:24px 34px}.page p{line-height:1.45}}
+@media(max-width:700px){
+ #app{padding:8px}
+ .bookroom{margin-bottom:10px}
+ .booktoolbar{padding:10px 12px}
+ .bookstage{padding:8px;border-radius:16px}
+ .openbook{grid-template-columns:minmax(0,1fr);width:100%;max-width:560px}
+ .page{height:auto;max-height:none;min-height:0}
+ .page.left{height:clamp(300px,54vh,500px);border-radius:11px 11px 0 0;border-right:0;border-bottom:1px solid #e8e5de}
+ .page.right{height:auto;min-height:290px;padding:28px 24px 42px;border-radius:0 0 11px 11px}
+ .illustration,.image-placeholder{height:100%;min-height:0}
+ .page p{font-size:17px;line-height:1.55}
+ .page.cover{height:auto;min-height:400px;max-height:none;padding:34px 24px}
+ .page-controls{gap:7px;flex-wrap:wrap}
+ .page-controls button{min-width:0;padding:10px 13px}
+ .page-count{min-width:95px;font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.page-turn-next,.page-turn-prev{animation:none!important}}
+</style>
+
+
+<style>
+/* NeuroGym complete visual pass */
+:root{--ng-ink:#273653;--ng-paper:#fffdf8} body{background:radial-gradient(ellipse at 8% 0%,#eaf5f8,transparent 36%),radial-gradient(ellipse at 92% 5%,#f2eafa,transparent 32%),#f8f7f4;color:var(--ng-ink)}
+#app{max-width:1540px;padding:clamp(8px,1.6vw,22px)} .topbar,.hero,.bookroom{max-width:1380px}
+.booktoolbar{position:relative;z-index:1;background:#ffffffed;border:1px solid #e6e6e9;border-radius:18px;padding:10px 16px;box-shadow:0 6px 24px #25334b0a}
+.bookstage{display:flex;align-items:center;justify-content:center;min-height:0;height:auto;padding:clamp(6px,1.2vw,16px);background:linear-gradient(135deg,#f3eee5,#eaf3f5 50%,#f0ebf7);border:1px solid #e6e2dd;border-radius:24px;box-shadow:0 10px 30px #2736530a;overflow:hidden}
+.openbook{width:min(100%,1200px);max-width:1200px;align-self:center;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;filter:drop-shadow(0 12px 20px #25334b1a);perspective:1800px}
+.page{box-sizing:border-box;height:clamp(360px,calc(100svh - 245px),660px);min-height:0;max-height:660px;padding:clamp(22px,3vw,44px);overflow:hidden;background:var(--ng-paper);border-color:#e8e1d6}
+.page.left{position:relative;padding:0;background:#dce8df;border-radius:12px 0 0 12px;border-right:0;overflow:hidden}
+.page.right{position:relative;display:flex;flex-direction:column;justify-content:center;padding:clamp(24px,4vw,62px);border-radius:0 12px 12px 0;background:linear-gradient(100deg,#fffdf8,#fff 68%,#f6f2ea);box-shadow:inset 18px 0 25px -24px #493b2860}
+.page.right:before{width:14px;background:linear-gradient(90deg,#b4a48a1c,transparent);pointer-events:none}
+.page h4{font-family:Georgia,'Times New Roman',serif;font-size:clamp(20px,1.8vw,28px);font-weight:400;line-height:1.3;color:#293a58;margin:0 0 clamp(12px,2vh,22px)}
+.page p{font-family:Georgia,'Times New Roman',serif;font-size:clamp(16px,1.35vw,21px);line-height:1.58;color:#292d35;overflow-wrap:anywhere;white-space:pre-wrap}
+.illustration,.image-placeholder{display:block;width:100%;height:100%;min-height:0;max-height:none;object-fit:cover;object-position:center;margin:0;border-radius:0;box-shadow:none}
+.image-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle at 50% 25%,#fff8dc,#dcece7 58%,#b9d3d4);font-size:clamp(36px,5vw,66px);padding:20px}.image-placeholder button{max-width:90%;font-size:14px;white-space:normal}
+.page-number{bottom:14px;font-family:Georgia,serif;font-size:12px;color:#7e7b75}.page.left .page-number{left:18px;color:#fff;text-shadow:0 1px 4px #0009}.page.right .page-number{right:18px}
+.page.cover{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;grid-column:1/-1;width:100%;height:clamp(360px,calc(100svh - 245px),660px);min-height:0;max-height:660px;overflow:hidden;padding:clamp(26px,4vw,54px);border:8px solid #fffaf0;border-radius:15px;background:linear-gradient(145deg,#d6e8e1,#dce3f7 55%,#f2dccc);box-shadow:inset 0 0 0 1px #ffffffb5,0 12px 30px #293c5720}
+.page.cover .cover-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}.page.cover:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(20,35,54,.78),rgba(20,35,54,.25) 48%,transparent 80%);pointer-events:none}.page.cover:before{content:"";position:absolute;inset:12px;border:1px solid #ffffff99;border-radius:8px;pointer-events:none;z-index:0}
+.page.cover .cover-icon{font-size:clamp(36px,5vw,62px);filter:drop-shadow(0 4px 8px #0004);margin-bottom:8px}.page.cover .eyebrow{color:#fff5dc;letter-spacing:2px;font-size:11px;text-shadow:0 1px 5px #0008;z-index:1}.page.cover h2{z-index:1;max-width:800px;font-size:clamp(30px,4.5vw,58px);line-height:1.05;margin:12px 0;color:white;text-shadow:0 2px 12px #14243e80;text-wrap:balance}.page.cover p{z-index:1;max-width:620px;color:#fffaf0;font-family:system-ui,sans-serif;font-size:clamp(13px,1.35vw,17px);line-height:1.5;text-shadow:0 1px 5px #14243e80}
+.page-controls{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:12px 0 16px}.page-controls button{min-width:100px;border-radius:999px;padding:10px 16px}.page-count{min-width:105px;font-size:12px;color:#637089;font-weight:600}
+@media(max-height:760px) and (min-width:701px){.page,.page.cover{height:calc(100svh - 220px);max-height:560px}.page.right{padding:22px 30px}.page p{line-height:1.45}}
+@media(max-width:700px){#app{padding:8px}.topbar{gap:8px;margin-bottom:12px}.brand h1{font-size:16px}.hero{grid-template-columns:1fr;gap:4px}.hero-copy{padding:12px 2px}.hero h2{font-size:clamp(30px,9vw,42px)}.hero-art{min-height:180px;max-height:230px;overflow:hidden}.booktoolbar{padding:9px 10px;gap:8px;align-items:center}.booktoolbar .actionrow{gap:6px!important;flex-wrap:wrap}.booktoolbar button{padding:10px 11px;font-size:12px}.bookstage{padding:7px;border-radius:16px}.openbook{grid-template-columns:minmax(0,1fr);width:100%;max-width:560px}.page{height:auto;max-height:none;min-height:0;padding:22px}.page.left{height:clamp(290px,48svh,450px);min-height:290px;border-radius:10px 10px 0 0;border-right:0;border-bottom:1px solid #e8e5de}.page.right{height:auto;min-height:250px;padding:27px 23px 42px;border-radius:0 0 10px 10px}.page h4{font-size:22px}.page p{font-size:17px;line-height:1.55}.illustration,.image-placeholder{height:100%;min-height:0}.page.cover{grid-column:auto;height:auto;min-height:460px;max-height:none;padding:30px 20px;border-width:6px}.page.cover h2{font-size:clamp(30px,8vw,42px)}.page.cover p{font-size:14px}.page-controls{gap:6px;margin:10px 0}.page-controls button{min-width:0;padding:10px 12px}.page-count{min-width:82px;font-size:11px}.pill{display:none}}
+@media(prefers-reduced-motion:reduce){.page-turn-next,.page-turn-prev{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">✦</div><div><h1>Книжная мастерская</h1><p>Нейроджимми · придумываем истории вместе с ИИ</p></div></div>
+    <div class="pill" id="modePill">Демо-режим · подключение API ещё не настроено</div>
+  </header>
+  <section class="hero">
+    <div class="hero-copy"><div class="eyebrow">Твоя идея — начало приключения</div><h2>Придумай идею.<br>Получи свою книгу.</h2><p>Расскажи, о чём должна быть история. ИИ поможет придумать сюжет, разделит его на страницы и создаст иллюстрации. А ты сможешь полистать свою книгу и сохранить её.</p></div>
+    <div class="hero-art" aria-hidden="true"><div class="book-stack"><div class="book one">Маленькие<br>большие<br>приключения</div><div class="book two">Книжная<br>мастерская</div><div class="book three">Мир<br>твоей<br>фантазии</div></div><span class="spark a">✦</span><span class="spark b">✧</span><span class="spark c">★</span></div>
+  </section>
+  <section class="panel" id="maker">
+    <h3>О чём будет твоя книга?</h3><p class="sub">Не нужно писать весь рассказ — достаточно одной идеи. Остальное придумает ИИ.</p>
+    <div class="formgrid">
+      <div class="field full"><label for="idea">Моя идея</label><textarea id="idea" maxlength="700" placeholder="Например: маленькая лягушка находит волшебный компас и отправляется искать потерянное озеро…"></textarea></div>
+      <div class="field"><label for="heroName">Имя главного героя (необязательно)</label><input id="heroName" maxlength="50" placeholder="Например, Квася"></div>
+      <div class="field"><label for="moral">Что хочется добавить? (необязательно)</label><input id="moral" maxlength="180" placeholder="Например, дружбу и немного юмора"></div>
+    </div>
+    <div class="options" style="margin-top:16px">
+      <div class="option"><label for="genre">Жанр</label><select id="genre"><option>Приключение</option><option>Сказка</option><option>Юмор</option><option>Фантастика</option><option>Детектив</option><option>Добрая история о дружбе</option></select></div>
+      <div class="option"><label for="age">Для какого возраста?</label><select id="age"><option value="7–9">7–9 лет</option><option value="10–12" selected>10–12 лет</option><option value="13–14">13–14 лет</option></select></div>
+      <div class="option"><label for="pages">Количество страниц</label><select id="pages"><option value="4">4 страницы · быстрая книга</option><option value="6" selected>6 страниц · обычная книга</option><option value="8">8 страниц · длинная история</option></select></div>
+    </div>
+    <div class="actionrow"><button class="primary" id="createBtn">✦ Создать мою книгу</button><button class="ghost" id="exampleBtn">Подставить пример</button></div>
+    <div class="status" id="status" role="status"></div>
+    <p class="smallnote" style="margin-top:15px">Для безопасности не указывай фамилию, адрес, школу, телефон или другие личные данные. Это учебный прототип для занятий Нейроджимми.</p>
+  </section>
+  <section class="panel" id="libraryPanel" aria-labelledby="libraryTitle" style="padding:18px 22px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h3 id="libraryTitle" style="font-size:18px;margin:0 0 4px">Мои книги</h3><p class="smallnote" style="margin:0">Книги хранятся только в этом браузере на этом устройстве.</p></div><button class="ghost" id="refreshLibraryBtn" type="button">Обновить список</button></div>
+    <div id="savedBooks" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:14px"></div>
+  </section>
+  <section class="bookroom" id="bookroom">
+    <div class="booktoolbar"><h3 id="bookTitle">Моя книга</h3><div class="actionrow" style="margin:0"><button class="secondary" id="newBookBtn">＋ Новая книга</button><button class="primary" id="pdfBtn">⇩ Сохранить в PDF</button></div></div>
+    <div class="bookstage"><div class="openbook" id="openbook"></div></div>
+    <div class="page-controls"><button class="ghost" id="prevBtn">← Назад</button><span class="page-count" id="pageCount">Обложка</span><button class="ghost" id="nextBtn">Вперёд →</button></div><div id="printBook" aria-hidden="true"></div>
+    <p class="smallnote" style="text-align:center;margin-top:12px">На компьютере можно использовать кнопки «Назад» и «Вперёд». Для PDF выбери «Сохранить как PDF» в окне печати.</p>
+  </section>
+  <footer class="footer">Нейроджимми · Учимся придумывать, задавать вопросы и создавать с помощью ИИ</footer>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let currentBook = null, currentPage = 0, demoMode = true, pageTurnDirection = "next";
+const examples = [
+ {idea:"Лягушка находит волшебный компас и отправляется искать озеро, которое исчезло с карты.",name:"Квася",moral:"дружбу, смелость и немного юмора"},
+ {idea:"Робот-садовник случайно выращивает огурец размером с дом и пытается вернуть сад в норму.",name:"Робик",moral:"изобретательность и командную работу"},
+ {idea:"Девочка обнаруживает, что её кот по ночам открывает портал в библиотеку забытых сказок.",name:"Мира",moral:"любопытство и заботу"}
+]
+
+const LIBRARY_KEY = "neurogym-storybooks-v1";
+function readLibrary(){try{const v=JSON.parse(localStorage.getItem(LIBRARY_KEY)||"[]");return Array.isArray(v)?v:[]}catch{return []}}
+function saveCurrentBook(){
+ if(!currentBook)return;
+ try{
+  const library=readLibrary();
+  const id=currentBook.id||((crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));
+  currentBook.id=id;currentBook.savedAt=new Date().toISOString();
+  const idx=library.findIndex(b=>b.id===id);if(idx>=0)library[idx]=currentBook;else library.unshift(currentBook);
+  localStorage.setItem(LIBRARY_KEY,JSON.stringify(library.slice(0,30)));renderLibrary();
+ }catch(e){setStatus("Книга создана, но не сохранилась в браузере: возможно, закончилось место. Скачай PDF.",true)}
+}
+function renderLibrary(){
+ const host=$("savedBooks");if(!host)return;const books=readLibrary();
+ if(!books.length){host.innerHTML='<p class="smallnote" style="margin:0">Здесь появятся твои сохранённые книги после первого создания.</p>';return}
+ host.innerHTML=books.map(b=>`<article style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0"><div style="font-size:24px;margin-bottom:6px">${escapeHtml(b.coverEmoji||"📚")}</div><strong style="display:block;overflow-wrap:anywhere">${escapeHtml(b.title||"Моя книга")}</strong><p class="smallnote" style="margin:5px 0 10px">${(b.pages||[]).length} страниц</p><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="secondary" data-open-book="${escapeHtml(b.id)}" type="button" style="padding:8px 10px">Открыть</button><button class="ghost" data-delete-book="${escapeHtml(b.id)}" type="button" style="padding:8px 10px">Удалить</button></div></article>`).join("");
+ host.querySelectorAll("[data-open-book]").forEach(btn=>btn.addEventListener("click",()=>{const b=readLibrary().find(x=>x.id===btn.dataset.openBook);if(!b)return;currentBook=b;currentPage=0;renderPage();saveCurrentBook();$("bookroom").classList.add("show");$("bookroom").scrollIntoView({behavior:"smooth",block:"start"})}));
+ host.querySelectorAll("[data-delete-book]").forEach(btn=>btn.addEventListener("click",()=>{const next=readLibrary().filter(x=>x.id!==btn.dataset.deleteBook);localStorage.setItem(LIBRARY_KEY,JSON.stringify(next));renderLibrary()}));
+}
+$("refreshLibraryBtn").onclick=renderLibrary;
+renderLibrary();
+$("exampleBtn").onclick=()=>{const e=examples[Math.floor(Math.random()*examples.length)];$("idea").value=e.idea;$("heroName").value=e.name;$("moral").value=e.moral};
+$("newBookBtn").onclick=()=>{$("bookroom").classList.remove("show");$("maker").scrollIntoView({behavior:"smooth",block:"start"})};
+$("pdfBtn").onclick=()=>{
+ if(!currentBook)return;
+ const pages=[`<section class="print-page cover"><div style="font-size:56pt">${escapeHtml(currentBook.coverEmoji||"📚")}</div><p style="text-transform:uppercase;letter-spacing:2px;font:700 11pt system-ui">Книжная мастерская Нейроджимми</p><h2>${escapeHtml(currentBook.title||"Моя книга")}</h2><p>${escapeHtml(currentBook.subtitle||"История, созданная по твоей идее")}</p><p style="font:11pt system-ui">Автор идеи: ${escapeHtml(currentBook.opts?.name||"юный автор")}</p></section>`];
+ currentBook.pages.forEach((p,i)=>{const img=p.image?`<img src="${p.image.startsWith("data:")?p.image:"data:image/jpeg;base64,"+p.image}" alt="Иллюстрация">`:`<div style="height:32vh;display:grid;place-items:center;font-size:48pt">${escapeHtml(currentBook.coverEmoji||"✨")}</div>`;pages.push(`<section class="print-page"><p style="font:10pt system-ui;color:#7c8795">СТРАНИЦА ${i+1}</p><h3>${escapeHtml(p.heading||"")}</h3>${img}<p>${escapeHtml(p.text||"")}</p></section>`)});
+ $("printBook").innerHTML=pages.join("");window.print();
+};
+$("prevBtn").onclick=()=>{if(currentPage>0){pageTurnDirection="prev";currentPage--;renderPage()}};
+$("nextBtn").onclick=()=>{if(currentBook && currentPage<currentBook.pages.length){pageTurnDirection="next";currentPage++;renderPage()}};
+function setStatus(msg,error=false){$("status").innerHTML=msg;$("status").className="status show"+(error?" error":"")}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function makeDemoBook(opts){
+ const name=opts.name||"главная героиня";
+ const seed=opts.idea.toLowerCase().includes("робот")?{title:"Робот, который вырастил целый мир",emoji:"🤖",story:[
+  ["Необычное утро","Робот-садовник Робик каждое утро проверял грядки. Однажды он решил добавить в удобрение каплю загадочного зелёного раствора."],
+  ["Огурец-рекордсмен","На следующий день на грядке вырос огурец размером с небольшой дом. Он потянулся к солнцу и заслонил половину сада."],
+  ["Ой-ой, урожай!","Робик измерил огурец линейкой, рулеткой и даже собственным корпусом. Все измерения показывали одно: огурец был слишком огромным."],
+  ["План спасения","Робик позвал соседских детей. Вместе они построили систему маленьких солнечных насосов, чтобы вернуть огурцу обычный размер."],
+  ["Команда инженеров","Дети предложили уменьшить дозу раствора, а Робик настроил датчики. Огурец начал уменьшаться — медленно, зато уверенно."],
+  ["Самый вкусный салат","К вечеру сад снова стал садом. Из огурца приготовили салат на весь двор, а Робик записал новое правило: сначала тестируй на маленькой грядке!"]
+ ]}:{title:"Квася и компас потерянного озера",emoji:"🐸",story:[
+  ["Находка у старого дуба","После дождя Квася заметила у корней старого дуба блестящую вещицу. Это был крошечный компас, но стрелка указывала не на север, а куда-то за лес."],
+  ["Карта, которой не было","На обратной стороне компаса проступили тонкие линии. Квася поняла: это карта озера, которого не было ни в одной знакомой книге."],
+  ["Через шуршащий лес","В путь она взяла рюкзак, яблоко и друга — светлячка Лучика. Лес шептал загадки, а Лучик освещал тропинку своим мягким светом."],
+  ["Мост из тумана","Перед ними возник овраг, заполненный серебристым туманом. Квася хотела прыгнуть, но Лучик заметил, что туман складывается в ступеньки."],
+  ["Тайна озера","За холмом они увидели озеро, спрятанное под огромными листьями. Оно исчезло с карты, потому что каждый год меняло своё место, чтобы оставаться чистым."],
+  ["Подарок для всех","Квася вернулась домой и нарисовала новую карту, добавив подсказку: «Ищите не глазами, а с любопытством». Теперь друзья отправлялись туда вместе."]
+ ]};
+ const story=seed.story.slice(0,opts.count);
+ return {title:seed.title,coverEmoji:seed.emoji,subtitle:"История, придуманная по твоей идее",pages:story.map((x,i)=>({heading:x[0],text:x[1],imagePrompt:`Детская книжная иллюстрация, ${seed.emoji}, уютная современная сказка, мягкие выразительные формы, цветная иллюстрация, сцена: ${x[1]}`}))};
+}
+async function generateImageForPage(index){
+ if(!currentBook||index<0||index>=currentBook.pages.length)return;
+ const page=currentBook.pages[index];if(!page.imagePrompt)return;
+ const retry=$("retryImageBtn");if(retry){retry.disabled=true;retry.textContent="Создаём…"}
+ try{
+  const artPrompt=`Полноформатная иллюстрация для детской книги, вертикальная композиция 4:5. Художественный стиль: атмосферная книжная живопись гуашью и акварелью, фактура бумаги и мазков кисти, мягкий естественный свет, приглушённые синие и золотистые акценты. Сохраняй внешний вид героя и общий стиль книги. Без текста, букв, подписей, рамок и коллажей. Сцена: ${page.imagePrompt}`;
+  const r=await fetch("/api/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:artPrompt})});
+  const data=await r.json();if(!r.ok)throw new Error(data.error||"Не удалось создать изображение");page.image=data.image;saveCurrentBook();renderPage();setStatus("Иллюстрация готова.");
+ }catch(e){setStatus("Не удалось создать иллюстрацию: "+escapeHtml(e.message||"ошибка"),true);if(retry){retry.disabled=false;retry.textContent="Повторить иллюстрацию"}}
+}
+async function createBook(){
+ const idea=$("idea").value.trim(); if(!idea){setStatus("Сначала напиши хотя бы одну идею для истории.",true);$("idea").focus();return}
+ const opts={idea,name:$("heroName").value.trim(),moral:$("moral").value.trim(),genre:$("genre").value,age:$("age").value,count:Number($("pages").value)};
+ $("createBtn").disabled=true;setStatus('<span class="spinner"></span>Готовим сюжет и страницы книги…');
+ try{
+  let book;
+  if(!demoMode){
+   const res=await fetch("/api/story",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(opts)});
+   if(!res.ok)throw new Error(await res.text()||"Не удалось создать историю");
+   book=await res.json();
+  }else{
+   await new Promise(r=>setTimeout(r,650));
+   book=makeDemoBook(opts);
+   book.title=book.title||"Моя первая книга";
+  }
+  currentBook=book;currentBook.opts=opts;saveCurrentBook();
+  if(!demoMode){
+   setStatus('<span class="spinner"></span>Сюжет готов. Создаём иллюстрации — это может занять несколько минут.');
+   for(let i=0;i<currentBook.pages.length;i++){
+    try{
+     const artPrompt=`Полноформатная иллюстрация для современной детской сказочной книги, вертикальная композиция 4:5. Художественный стиль: атмосферная книжная живопись гуашью и акварелью, тонкая фактура бумаги и мазков кисти, мягкий естественный свет, глубокая лесная зелень, тёплые коричневые оттенки, приглушённые синие и золотистые акценты, выразительные добрые лица, детализированная природа, профессиональная иллюстрация к классической современной сказке. Единый стиль и внешний вид героев на всех страницах. Изображение без текста, букв, подписей, рамок и коллажей. Сцена этой страницы: ${currentBook.pages[i].imagePrompt||currentBook.pages[i].text}`;
+     const r=await fetch("/api/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:artPrompt})});
+     if(r.ok){const data=await r.json();currentBook.pages[i].image=data.image;saveCurrentBook()}
+     setStatus(`<span class="spinner"></span>Иллюстрации: ${i+1} из ${currentBook.pages.length}. Можно немного подождать.`);
+    }catch(e){console.warn("Image generation failed",e)}
+   }
+  }
+  currentPage=0;renderPage();saveCurrentBook();$("bookroom").classList.add("show");$("bookroom").scrollIntoView({behavior:"smooth",block:"start"});
+  setStatus(demoMode?"Демо-книга готова. Когда подключим API, здесь будут появляться уникальные истории и сгенерированные картинки.":"Книга готова! Перелистывай страницы или сохрани её в PDF.");
+ }catch(e){setStatus("Не получилось создать книгу: "+escapeHtml(e.message||"ошибка соединения")+". Проверьте настройки Worker и попробуйте ещё раз.",true)}
+ finally{$("createBtn").disabled=false}
+}
+function renderPage(){
+ if(!currentBook)return;
+ const total=currentBook.pages.length;
+ $("bookTitle").textContent=currentBook.title||"Моя книга";
+ $("prevBtn").disabled=currentPage===0;$("nextBtn").disabled=currentPage>=total;
+ if(currentPage===0){
+  const coverArt=currentBook.coverImage||currentBook.pages?.[0]?.image; const coverImg=coverArt?`<img class="cover-art" src="${coverArt.startsWith("data:")?coverArt:"data:image/jpeg;base64,"+coverArt}" alt="Иллюстрация обложки">`:"";
+  $("openbook").innerHTML=`<div class="page cover">${coverImg}<div class="cover-icon">${escapeHtml(currentBook.coverEmoji||"📚")}</div><div class="eyebrow">Книжная мастерская NeuroGym</div><h2>${escapeHtml(currentBook.title||"Моя первая книга")}</h2><p>${escapeHtml(currentBook.subtitle||"История начинается с твоей идеи")}</p><p style="margin-top:12px;font-size:12px">Автор идеи: ${escapeHtml(currentBook.opts?.name||"юный автор")}</p></div>`;
+  $("pageCount").textContent="Обложка";
+ }else{
+  const p=currentBook.pages[currentPage-1];
+  const image=p.image?`<img class="illustration" src="${p.image.startsWith("data:")?p.image:"data:image/jpeg;base64,"+p.image}" alt="Иллюстрация к странице">`:`<div class="image-placeholder" aria-label="Иллюстрация отсутствует" style="display:flex;flex-direction:column;gap:14px"><span>✦</span><button class="secondary" id="retryImageBtn" type="button" ${demoMode?"disabled":""}>Повторить иллюстрацию</button></div>`;
+  let html=`<article class="page left">${image}<span class="page-number">${currentPage}</span></article>`;
+  html+=`<article class="page right"><h4>${escapeHtml(p.heading||"История продолжается")}</h4><p>${escapeHtml(p.text||"")}</p><span class="page-number">${currentPage}</span></article>`;
+  $("openbook").innerHTML=html;const retry=$("retryImageBtn");if(retry)retry.onclick=()=>generateImageForPage(currentPage-1);$("openbook").classList.remove("page-turn-next","page-turn-prev");requestAnimationFrame(()=>$("openbook").classList.add(pageTurnDirection==="prev"?"page-turn-prev":"page-turn-next"));$("pageCount").textContent=`Страница ${currentPage} из ${total}`;
+ }
+}
+$("createBtn").onclick=createBook;
+(async()=>{
+ try{const r=await fetch("/api/status",{cache:"no-store"});if(r.ok){const s=await r.json();if(s.connected){demoMode=false;$("modePill").textContent="ИИ подключён · Cloudflare Workers AI";$("modePill").style.color="#2f7864";}}}catch(e){}
+})();
+</script>
+</body></html>
