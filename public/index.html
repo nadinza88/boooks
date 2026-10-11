@@ -161,7 +161,32 @@ body{background:#f8f7f6;color:#252525;font-family:Arial,system-ui,sans-serif}
 @media(max-width:700px){#app{padding:8px}.topbar{gap:8px;margin-bottom:12px}.brand h1{font-size:16px}.hero{grid-template-columns:1fr;gap:4px}.hero-copy{padding:12px 2px}.hero h2{font-size:clamp(30px,9vw,42px)}.hero-art{min-height:180px;max-height:230px;overflow:hidden}.booktoolbar{padding:9px 10px;gap:8px;align-items:center}.booktoolbar .actionrow{gap:6px!important;flex-wrap:wrap}.booktoolbar button{padding:10px 11px;font-size:12px}.bookstage{padding:7px;border-radius:16px}.openbook{grid-template-columns:minmax(0,1fr);width:100%;max-width:560px}.page{height:auto;max-height:none;min-height:0;padding:22px}.page.left{height:clamp(290px,48svh,450px);min-height:290px;border-radius:10px 10px 0 0;border-right:0;border-bottom:1px solid #e8e5de}.page.right{height:auto;min-height:250px;padding:27px 23px 42px;border-radius:0 0 10px 10px}.page h4{font-size:22px}.page p{font-size:17px;line-height:1.55}.illustration,.image-placeholder{height:100%;min-height:0}.page.cover{grid-column:auto;height:auto;min-height:460px;max-height:none;padding:30px 20px;border-width:6px}.page.cover h2{font-size:clamp(30px,8vw,42px)}.page.cover p{font-size:14px}.page-controls{gap:6px;margin:10px 0}.page-controls button{min-width:0;padding:10px 12px}.page-count{min-width:82px;font-size:11px}.pill{display:none}}
 @media(prefers-reduced-motion:reduce){.page-turn-next,.page-turn-prev{animation:none!important}}
 </style>
-</head>
+<style>
+/* NeuroGym paper, cover and page-curl refinements */
+.page,.print-page{background-color:#fffdf7;background-image:radial-gradient(ellipse at 18% 12%,rgba(174,151,111,.055),transparent 34%),radial-gradient(ellipse at 82% 78%,rgba(174,151,111,.045),transparent 38%),repeating-linear-gradient(0deg,rgba(128,105,70,.018) 0,rgba(128,105,70,.018) 1px,transparent 1px,transparent 4px)}
+.page.cover{isolation:isolate;justify-content:flex-end;text-align:left;padding:0;overflow:hidden;background:#34445b;border:8px solid #fffaf0}
+.page.cover .cover-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.page.cover .cover-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,transparent 25%,rgba(15,26,43,.08) 45%,rgba(15,26,43,.78) 100%)}
+.page.cover .cover-copy{position:relative;z-index:1;width:100%;padding:clamp(24px,5vw,58px);color:white;text-align:left}
+.page.cover .cover-copy h2{font-family:Georgia,'Times New Roman',serif;font-weight:500;font-size:clamp(32px,5vw,58px);line-height:1.08;color:white;text-shadow:0 2px 12px #0008;margin:0 0 14px}
+.page.cover .cover-copy p{font-family:Georgia,'Times New Roman',serif;font-size:clamp(16px,1.6vw,21px);line-height:1.45;color:#fff;margin:0;max-width:640px;text-shadow:0 1px 8px #0009}
+.openbook.is-turning::after{content:"";position:absolute;z-index:20;top:0;bottom:0;right:0;width:50%;pointer-events:none;transform-origin:left center;background:linear-gradient(90deg,rgba(106,88,62,.10),rgba(255,253,247,.98) 10%,rgba(255,255,255,.96) 78%,rgba(142,123,94,.32));box-shadow:-8px 0 18px #4d41301c;backface-visibility:hidden;animation:pageCurlNext .68s cubic-bezier(.2,.65,.25,1) both}
+.openbook.is-turning.turn-prev::after{right:auto;left:0;transform-origin:right center;animation-name:pageCurlPrev}
+@keyframes pageCurlNext{0%{transform:rotateY(0deg)}45%{filter:brightness(.84)}100%{transform:rotateY(-180deg)}}
+@keyframes pageCurlPrev{0%{transform:rotateY(0deg)}45%{filter:brightness(.84)}100%{transform:rotateY(180deg)}}
+.print-page.cover{position:relative;overflow:hidden;padding:0!important;display:flex;justify-content:flex-end;text-align:left;background:#34445b}
+.print-cover-art{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover;z-index:0;margin:0!important;border-radius:0!important}
+.print-cover-copy{position:relative;z-index:1;width:100%;padding:2cm;color:#fff;background:linear-gradient(180deg,transparent,rgba(15,26,43,.78))}
+.print-cover-copy h2{font-family:Georgia,serif;color:#fff;font-size:36pt;line-height:1.1}
+.print-cover-copy p{font-family:Georgia,serif;color:#fff;font-size:15pt}
+.print-story-layout{display:flex;flex-direction:column;gap:10px;min-height:90vh}
+.print-page .print-story-layout img{width:100%;height:58vh;object-fit:contain;margin:0 auto 12px}
+.print-story-text{flex:1}
+.print-story-text h3{margin:0 0 12px;font-size:19pt;font-weight:500}
+.print-story-text p{font-size:13pt;line-height:1.55}
+@media(max-width:700px){.page.cover{min-height:440px!important;height:440px!important}.page.cover .cover-copy{padding:24px}}
+@media print{.print-page.cover{min-height:95vh}.print-cover-art{height:100%!important}.print-page .print-story-layout img{height:54vh}}
+</style></head>
 <body>
 <div id="app">
   <header class="topbar">
@@ -234,7 +259,7 @@ $("exampleBtn").onclick=()=>{const e=examples[Math.floor(Math.random()*examples.
 $("newBookBtn").onclick=()=>{$("bookroom").classList.remove("show");$("maker").scrollIntoView({behavior:"smooth",block:"start"})};
 $("pdfBtn").onclick=()=>{
  if(!currentBook)return;
- const pages=[`<section class="print-page cover"><div style="font-size:56pt">${escapeHtml(currentBook.coverEmoji||"📚")}</div><p style="text-transform:uppercase;letter-spacing:2px;font:700 11pt system-ui">Книжная мастерская Нейроджимми</p><h2>${escapeHtml(currentBook.title||"Моя книга")}</h2><p>${escapeHtml(currentBook.subtitle||"История, созданная по твоей идее")}</p><p style="font:11pt system-ui">Автор идеи: ${escapeHtml(currentBook.opts?.name||"юный автор")}</p></section>`];
+ const coverArt=currentBook.coverImage||currentBook.pages?.[0]?.image; const coverImg=coverArt?`<img class="print-cover-art" src="${coverArt.startsWith("data:")?coverArt:"data:image/jpeg;base64,"+coverArt}" alt="">`:""; const pages=[`<section class="print-page cover">${coverImg}<div class="print-cover-copy"><h2>${escapeHtml(currentBook.title||"Моя книга")}</h2><p>${escapeHtml(currentBook.subtitle||"")}</p></div></section>`];
  currentBook.pages.forEach((p,i)=>{const img=p.image?`<img src="${p.image.startsWith("data:")?p.image:"data:image/jpeg;base64,"+p.image}" alt="Иллюстрация">`:`<div style="height:32vh;display:grid;place-items:center;font-size:48pt">${escapeHtml(currentBook.coverEmoji||"✨")}</div>`;pages.push(`<section class="print-page"><p style="font:10pt system-ui;color:#7c8795">СТРАНИЦА ${i+1}</p><h3>${escapeHtml(p.heading||"")}</h3>${img}<p>${escapeHtml(p.text||"")}</p></section>`)});
  $("printBook").innerHTML=pages.join("");window.print();
 };
@@ -325,13 +350,13 @@ function renderPage(){
  $("prevBtn").disabled=currentPage===0;$("nextBtn").disabled=currentPage>=total;
  if(currentPage===0){
   const coverArt=currentBook.coverImage||currentBook.pages?.[0]?.image; const coverImg=coverArt?`<img class="cover-art" src="${coverArt.startsWith("data:")?coverArt:"data:image/jpeg;base64,"+coverArt}" alt="Иллюстрация обложки">`:"";
-  $("openbook").innerHTML=`<div class="page cover">${coverImg}<div class="cover-icon">${escapeHtml(currentBook.coverEmoji||"📚")}</div><div class="eyebrow">Книжная мастерская NeuroGym</div><h2>${escapeHtml(currentBook.title||"Моя первая книга")}</h2><p>${escapeHtml(currentBook.subtitle||"История начинается с твоей идеи")}</p><p style="margin-top:12px;font-size:12px">Автор идеи: ${escapeHtml(currentBook.opts?.name||"юный автор")}</p></div>`;
+  $("openbook").innerHTML=`<div class="page cover">${coverImg}<div class="cover-shade"></div><div class="cover-copy"><h2>${escapeHtml(currentBook.title||"Моя первая книга")}</h2><p>${escapeHtml(currentBook.subtitle||"")}</p></div></div>`;
   $("pageCount").textContent="Обложка";
  }else{
   const p=currentBook.pages[currentPage-1];
   const image=p.image?`<img class="illustration" src="${p.image.startsWith("data:")?p.image:"data:image/jpeg;base64,"+p.image}" alt="Иллюстрация к странице">`:`<div class="image-placeholder" aria-label="Иллюстрация отсутствует" style="display:flex;flex-direction:column;gap:14px"><span>✦</span><button class="secondary" id="retryImageBtn" type="button" ${demoMode?"disabled":""}>Повторить иллюстрацию</button></div>`;
   let html=`<article class="page left">${image}<span class="page-number">${currentPage}</span></article>`;
-  html+=`<article class="page right"><h4>${escapeHtml(p.heading||"История продолжается")}</h4><p>${escapeHtml(p.text||"")}</p><span class="page-number">${currentPage}</span></article>`;
+  html+=`<article class="page right">${p.heading?`<h4>${escapeHtml(p.heading)}</h4>`:""}<p>${escapeHtml(p.text||"")}</p><span class="page-number">${currentPage}</span></article>`;
   $("openbook").innerHTML=html;const retry=$("retryImageBtn");if(retry)retry.onclick=()=>generateImageForPage(currentPage-1);$("openbook").classList.remove("page-turn-next","page-turn-prev");requestAnimationFrame(()=>$("openbook").classList.add(pageTurnDirection==="prev"?"page-turn-prev":"page-turn-next"));$("pageCount").textContent=`Страница ${currentPage} из ${total}`;
  }
 }
