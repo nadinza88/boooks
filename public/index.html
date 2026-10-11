@@ -262,6 +262,17 @@ function makeDemoBook(opts){
  const story=seed.story.slice(0,opts.count);
  return {title:seed.title,coverEmoji:seed.emoji,subtitle:"История, придуманная по твоей идее",pages:story.map((x,i)=>({heading:x[0],text:x[1],imagePrompt:`Детская книжная иллюстрация, ${seed.emoji}, уютная современная сказка, мягкие выразительные формы, цветная иллюстрация, сцена: ${x[1]}`}))};
 }
+async function makeCharacterReference(imageData){
+ if(!imageData)return "";
+ const src=imageData.startsWith("data:")?imageData:"data:image/jpeg;base64,"+imageData;
+ const img=new Image();img.src=src;
+ await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject});
+ const scale=Math.min(1,480/Math.max(img.naturalWidth,img.naturalHeight));
+ const canvas=document.createElement("canvas");
+ canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+ const ctx=canvas.getContext("2d");ctx.drawImage(img,0,0,canvas.width,canvas.height);
+ return canvas.toDataURL("image/jpeg",0.82);
+}
 async function generateImageForPage(index){
  if(!currentBook||index<0||index>=currentBook.pages.length)return;
  const page=currentBook.pages[index];if(!page.imagePrompt)return;
@@ -292,8 +303,10 @@ async function createBook(){
    setStatus('<span class="spinner"></span>Сюжет готов. Создаём иллюстрации — это может занять несколько минут.');
    for(let i=0;i<currentBook.pages.length;i++){
     try{
-     const artPrompt=`Полноформатная иллюстрация для современной детской сказочной книги, вертикальная композиция 4:5. Художественный стиль: атмосферная книжная живопись гуашью и акварелью, тонкая фактура бумаги и мазков кисти, мягкий естественный свет, глубокая лесная зелень, тёплые коричневые оттенки, приглушённые синие и золотистые акценты, выразительные добрые лица, детализированная природа, профессиональная иллюстрация к классической современной сказке. Единый стиль и внешний вид героев на всех страницах. Изображение без текста, букв, подписей, рамок и коллажей. Сцена этой страницы: ${currentBook.pages[i].imagePrompt||currentBook.pages[i].text}`;
-     const r=await fetch("/api/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:artPrompt})});
+     const characterGuide=(currentBook.characters||[]).map(c=>c.name+": "+c.visualDescription).join("\\n");
+     const artPrompt=`Иллюстрация для детской книги, композиция 4:3. Художественный стиль: качественная книжная живопись акварелью и гуашью, тонкая фактура бумаги и мазков кисти, мягкий естественный свет, выразительные эмоции, цельная композиция, гармоничная палитра. ПАСПОРТ ПОСТОЯННЫХ ПЕРСОНАЖЕЙ — строго соблюдай внешний вид, виды животных, цвета, лицо, пропорции, одежду и отличительные детали: ${characterGuide||"Следуй подробному описанию героев в сцене"}. Не добавляй новых главных героев и не меняй дизайн между страницами. Без текста, букв, подписей, рамок и коллажей. Сцена: ${currentBook.pages[i].imagePrompt||currentBook.pages[i].text}`;
+     const referenceImage=i>0&&currentBook.pages[0]?.image?await makeCharacterReference(currentBook.pages[0].image):"";
+     const r=await fetch("/api/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:artPrompt,referenceImage})});
      if(r.ok){const data=await r.json();currentBook.pages[i].image=data.image;saveCurrentBook()}
      setStatus(`<span class="spinner"></span>Иллюстрации: ${i+1} из ${currentBook.pages.length}. Можно немного подождать.`);
     }catch(e){console.warn("Image generation failed",e)}
