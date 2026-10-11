@@ -47,7 +47,8 @@ export default {
           let book;
           try { book = JSON.parse(raw); } catch { throw new Error("Модель вернула некорректный JSON. Попробуй ещё раз."); }
           if (!book || !Array.isArray(book.pages) || book.pages.length < 1) throw new Error("В ответе модели нет страниц.");
-          book.characters = Array.isArray(book.characters) ? book.characters.slice(0, 8).map(c => ({ name: clip(c?.name, 80), visualDescription: clip(c?.visualDescription, 500) })).filter(c => c.name && c.visualDescription) : [];\n          book.pages = book.pages.slice(0, count).map((p, i) => ({ heading: clip(p?.heading || `Страница ${i+1}`, 120), text: clip(p?.text, 1400), imagePrompt: clip(p?.imagePrompt || p?.text, 1800) }));
+          book.characters = Array.isArray(book.characters) ? book.characters.slice(0, 8).map(c => ({ name: clip(c?.name, 80), visualDescription: clip(c?.visualDescription, 500) })).filter(c => c.name && c.visualDescription) : [];
+          book.pages = book.pages.slice(0, count).map((p, i) => ({ heading: clip(p?.heading || `Страница ${i+1}`, 120), text: clip(p?.text, 1400), imagePrompt: clip(p?.imagePrompt || p?.text, 1800) }));
           if (book.pages.length !== count) throw new Error("Модель создала не все страницы. Попробуй ещё раз.");
           return json({ title: clip(book.title || "Моя первая книга", 120), coverEmoji: clip(book.coverEmoji || "📚", 8), subtitle: clip(book.subtitle || "История по твоей идее", 180), characters: book.characters, pages: book.pages });
         } catch (e) { return json({ error: `Не удалось создать историю: ${clip(e?.message || e, 250)}` }, 502); }
@@ -61,8 +62,8 @@ export default {
         form.append("prompt", reference
           ? `Используй изображение 1 как визуальный референс для сохранения идентичности персонажей и художественного стиля. Сохрани вид животного/человека, пропорции, цвета, лицо, шерсть/волосы и одежду. Измени позу, действие и фон согласно новой сцене: ${fullPrompt}`
           : fullPrompt);
-        form.append("width", "1024");
-        form.append("height", "768");
+        form.append("width", "768");
+        form.append("height", "1024");
         if (reference) {
           const binary = Uint8Array.from(atob(reference), c => c.charCodeAt(0));
           form.append("input_image_0", new Blob([binary], { type: "image/jpeg" }), "character-reference.jpg");
