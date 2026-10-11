@@ -238,8 +238,9 @@ $("pdfBtn").onclick=()=>{
  currentBook.pages.forEach((p,i)=>{const img=p.image?`<img src="${p.image.startsWith("data:")?p.image:"data:image/jpeg;base64,"+p.image}" alt="Иллюстрация">`:`<div style="height:32vh;display:grid;place-items:center;font-size:48pt">${escapeHtml(currentBook.coverEmoji||"✨")}</div>`;pages.push(`<section class="print-page"><p style="font:10pt system-ui;color:#7c8795">СТРАНИЦА ${i+1}</p><h3>${escapeHtml(p.heading||"")}</h3>${img}<p>${escapeHtml(p.text||"")}</p></section>`)});
  $("printBook").innerHTML=pages.join("");window.print();
 };
-$("prevBtn").onclick=()=>{if(currentPage>0){pageTurnDirection="prev";currentPage--;renderPage()}};
-$("nextBtn").onclick=()=>{if(currentBook && currentPage<currentBook.pages.length){pageTurnDirection="next";currentPage++;renderPage()}};
+function turnPage(direction){if(!currentBook)return;const next=currentPage+(direction==="next"?1:-1);if(next<0||next>currentBook.pages.length)return;currentPage=next;pageTurnDirection=direction;renderPage();const book=$("openbook");book.classList.remove("is-turning","turn-prev");void book.offsetWidth;book.classList.add("is-turning");if(direction==="prev")book.classList.add("turn-prev");window.setTimeout(()=>book.classList.remove("is-turning","turn-prev"),720)}
+$("prevBtn").onclick=()=>turnPage("prev");
+$("nextBtn").onclick=()=>turnPage("next");
 function setStatus(msg,error=false){$("status").innerHTML=msg;$("status").className="status show"+(error?" error":"")}
 function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function makeDemoBook(opts){
