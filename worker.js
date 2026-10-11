@@ -41,7 +41,7 @@ export default {
 Имя героя: ${heroName || "придумай подходящее"}
 Пожелания: ${extra || "нет"}`;
         try {
-          const result = await env.AI.run(MODEL_TEXT, { messages: [{ role: "system", content: system }, { role: "user", content: user }], max_tokens: 4096, temperature: 0.4 });
+          const result = await env.AI.run(MODEL_TEXT, { messages: [{ role: "system", content: system }, { role: "user", content: user }], max_tokens: 8192, temperature: 0.4 });
           let raw = [result?.response, result?.choices?.[0]?.message?.content, result?.choices?.[0]?.text, result?.output_text].find(v => typeof v === "string" && v.trim()) || "";
           raw = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/^\s*```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
           let book;
