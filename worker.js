@@ -56,7 +56,7 @@ export default {
       if (!prompt) return json({ error: "Не задано описание иллюстрации." }, 400);
       try {
         const fullPrompt = `${prompt}. Детская книжная иллюстрация в стиле акварели и гуаши, фактура бумаги и мазков кисти, цельная композиция, мягкий естественный свет, выразительные эмоции, гармоничная палитра. Точно соблюдай описание персонажей и сцену. Без текста, букв, логотипов и водяных знаков.`;
-        const reference = typeof body.referenceImage === "string" ? body.referenceImage.replace(/^data:image\\/[^;]+;base64,/, "") : "";
+        const reference = typeof body.referenceImage === "string" ? body.referenceImage.replace(/^data:image\/[^;]+;base64,/, "") : "";
         const form = new FormData();
         form.append("prompt", reference
           ? `Используй изображение 1 как визуальный референс для сохранения идентичности персонажей и художественного стиля. Сохрани вид животного/человека, пропорции, цвета, лицо, шерсть/волосы и одежду. Измени позу, действие и фон согласно новой сцене: ${fullPrompt}`
