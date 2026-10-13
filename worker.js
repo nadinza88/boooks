@@ -54,7 +54,7 @@ export default {
           try { book = JSON.parse(raw); } catch { throw new Error("Модель вернула некорректный JSON. Попробуй ещё раз."); }
           if (!book || !Array.isArray(book.pages) || book.pages.length < 1) throw new Error("В ответе модели нет страниц.");
           book.characters = Array.isArray(book.characters) ? book.characters.slice(0, 8).map(c => ({ name: clip(c?.name, 80), visualDescription: clip(c?.visualDescription, 500) })).filter(c => c.name && c.visualDescription) : [];
-          book.pages = book.pages.slice(0, count).map((p, i) => ({ heading: clip(p?.heading || `Страница ${i+1}`, 120), text: clip(p?.text, 1400), imagePrompt: clip(p?.imagePrompt || p?.text, 1800) }));
+          book.pages = book.pages.slice(0, count).map((p, i) => ({ heading: i === 0 ? clip(p?.heading || "", 120) : "", text: clip(p?.text, 1400), imagePrompt: clip(p?.imagePrompt || p?.text, 1800) }));
           if (book.pages.length !== count) throw new Error("Модель создала не все страницы. Попробуй ещё раз.");
           return json({ title: clip(book.title || "Моя первая книга", 120), coverEmoji: clip(book.coverEmoji || "📚", 8), subtitle: clip(book.subtitle || "История по твоей идее", 180), characters: book.characters, pages: book.pages });
         } catch (e) { return json({ error: `Не удалось создать историю: ${clip(e?.message || e, 250)}` }, 502); }
