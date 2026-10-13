@@ -186,7 +186,41 @@ body{background:#f8f7f6;color:#252525;font-family:Arial,system-ui,sans-serif}
 .print-story-text p{font-size:13pt;line-height:1.55}
 @media(max-width:700px){.page.cover{min-height:440px!important;height:440px!important}.page.cover .cover-copy{padding:24px}}
 @media print{.print-page.cover{min-height:95vh}.print-cover-art{height:100%!important}.print-page .print-story-layout img{height:54vh}}
-</style></head>
+</style><style>
+/* Финальная правка книжной обложки и настоящего листания */
+.page.cover{
+  grid-column:auto!important;
+  width:min(440px,78vw)!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:2/3;
+  margin:0 auto;
+  padding:0!important;
+  display:flex!important;
+  align-items:stretch!important;
+  justify-content:flex-end!important;
+  text-align:left!important;
+  position:relative!important;
+  overflow:hidden!important;
+  border:8px solid #fffaf0!important;
+  border-radius:14px!important;
+  background:#35445d!important;
+}
+.page.cover .cover-art{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;z-index:0!important}
+.page.cover .cover-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(15,26,43,.82),rgba(15,26,43,.08) 72%);z-index:1;pointer-events:none}
+.page.cover .cover-copy{position:relative;z-index:2;width:100%;margin-top:auto;padding:30px 24px 32px;color:#fff;text-align:left}
+.page.cover .cover-copy h2{font-size:clamp(27px,4vw,42px)!important;line-height:1.08!important;color:#fff!important;margin:0 0 12px!important}
+.page.cover .cover-copy p{font-size:15px!important;color:#fff!important;line-height:1.5!important}
+.page.cover .cover-icon,.page.cover .eyebrow,.page.cover .spark{display:none!important}
+.openbook{position:relative;transform-style:preserve-3d}
+.page-flip-overlay{position:absolute!important;inset:0!important;z-index:50!important;display:grid!important;grid-template-columns:1fr 1fr!important;pointer-events:none!important;transform-origin:right center;backface-visibility:hidden;box-shadow:0 4px 18px #1d2d3b22;animation:realPageFlip .68s cubic-bezier(.3,.65,.2,1) forwards}
+.page-flip-overlay .page{height:100%!important;min-height:0!important}
+@keyframes realPageFlip{0%{transform:rotateY(0);filter:brightness(1)}45%{filter:brightness(.82)}100%{transform:rotateY(-180deg);filter:brightness(.95)}}
+.openbook.flip-back .page-flip-overlay{transform-origin:left center;animation-name:realPageFlipBack}
+@keyframes realPageFlipBack{0%{transform:rotateY(0);filter:brightness(1)}45%{filter:brightness(.82)}100%{transform:rotateY(180deg);filter:brightness(.95)}}
+@media(max-width:700px){.page.cover{width:min(340px,86vw)!important}.page-flip-overlay{display:none!important}}
+</style>
+</head>
 <body>
 <div id="app">
   <header class="topbar">
@@ -260,10 +294,24 @@ $("newBookBtn").onclick=()=>{$("bookroom").classList.remove("show");$("maker").s
 $("pdfBtn").onclick=()=>{
  if(!currentBook)return;
  const coverArt=currentBook.coverImage||currentBook.pages?.[0]?.image; const coverImg=coverArt?`<img class="print-cover-art" src="${coverArt.startsWith("data:")?coverArt:"data:image/jpeg;base64,"+coverArt}" alt="">`:""; const pages=[`<section class="print-page cover">${coverImg}<div class="print-cover-copy"><h2>${escapeHtml(currentBook.title||"Моя книга")}</h2><p>${escapeHtml(currentBook.subtitle||"")}</p></div></section>`];
- currentBook.pages.forEach((p,i)=>{const img=p.image?`<img src="${p.image.startsWith("data:")?p.image:"data:image/jpeg;base64,"+p.image}" alt="Иллюстрация">`:`<div style="height:32vh;display:grid;place-items:center;font-size:48pt">${escapeHtml(currentBook.coverEmoji||"✨")}</div>`;pages.push(`<section class="print-page"><p style="font:10pt system-ui;color:#7c8795">СТРАНИЦА ${i+1}</p><h3>${escapeHtml(p.heading||"")}</h3>${img}<p>${escapeHtml(p.text||"")}</p></section>`)});
+ currentBook.pages.forEach((p,i)=>{const img=p.image?`<img src="${p.image.startsWith("data:")?p.image:"data:image/jpeg;base64,"+p.image}" alt="Иллюстрация">`:`<div style="height:32vh;display:grid;place-items:center;color:#8b8b8b;font-size:12pt">Иллюстрация не создана</div>`;pages.push(`<section class="print-page"><p style="font:10pt system-ui;color:#7c8795">СТРАНИЦА ${i+1}</p><h3>${escapeHtml(p.heading||"")}</h3>${img}<p>${escapeHtml(p.text||"")}</p></section>`)});
  $("printBook").innerHTML=pages.join("");window.print();
 };
-function turnPage(direction){if(!currentBook)return;const next=currentPage+(direction==="next"?1:-1);if(next<0||next>currentBook.pages.length)return;currentPage=next;pageTurnDirection=direction;renderPage();const book=$("openbook");book.classList.remove("is-turning","turn-prev");void book.offsetWidth;book.classList.add("is-turning");if(direction==="prev")book.classList.add("turn-prev");window.setTimeout(()=>book.classList.remove("is-turning","turn-prev"),720)}
+function turnPage(direction){
+ if(!currentBook)return;
+ const next=currentPage+(direction==="next"?1:-1);
+ if(next<0||next>currentBook.pages.length)return;
+ const book=$("openbook");
+ const oldSheet=book.cloneNode(true);
+ oldSheet.removeAttribute("id");
+ oldSheet.className="page-flip-overlay"+(direction==="prev"?" flip-back":"");
+ oldSheet.querySelectorAll("[id]").forEach(el=>el.removeAttribute("id"));
+ currentPage=next;pageTurnDirection=direction;renderPage();
+ const freshBook=$("openbook");
+ freshBook.appendChild(oldSheet);
+ if(direction==="prev")freshBook.classList.add("flip-back");
+ window.setTimeout(()=>{oldSheet.remove();freshBook.classList.remove("flip-back")},720);
+}
 $("prevBtn").onclick=()=>turnPage("prev");
 $("nextBtn").onclick=()=>turnPage("next");
 function setStatus(msg,error=false){$("status").innerHTML=msg;$("status").className="status show"+(error?" error":"")}
