@@ -17,7 +17,7 @@ test("ребёнок проходит квест и получает карту 
   }
 
   await expect(page.locator("#result")).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Твои выборы/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Какие задачи тебя привлекали/ })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Профессии, на которые можно посмотреть/ })).toBeVisible();
   await expect(page.getByRole("button", { name: /Сохранить карту/ })).toBeVisible();
 
