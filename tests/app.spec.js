@@ -21,6 +21,9 @@ test("a child can complete all nine missions and see the interest map", async ({
   for (let mission = 0; mission < 9; mission += 1) {
     await expect(page.locator("#stepLabel")).toHaveText(`ПРИКЛЮЧЕНИЕ ${mission + 1} ИЗ 9`);
     await expect(page.locator("#mission .answer")).toHaveCount(5);
+    const scene = page.locator("#mission .sceneart");
+    await expect(scene).toBeVisible();
+    await expect.poll(() => scene.evaluate((image) => image.complete && image.naturalWidth > 0)).toBe(true);
     await page.locator("#mission .answer").first().click();
     await expect(page.locator("#feedback")).toBeVisible();
     await page.locator("#next").click();
@@ -29,7 +32,8 @@ test("a child can complete all nine missions and see the interest map", async ({
   await expect(page.locator("#result")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Твоя карта интересов" })).toBeVisible();
   await expect(page.locator("#result .scoreline")).toHaveCount(5);
-  await expect(page.locator("#result .scoreline b").first()).toContainText("из 9");
+  const totals = await page.locator("#result .scoreline b").allTextContents();
+  expect(totals.reduce((sum, value) => sum + Number.parseInt(value, 10), 0)).toBe(9);
   await expect(page.getByRole("button", { name: /Сыграть ещё раз/ })).toBeVisible();
 });
 
